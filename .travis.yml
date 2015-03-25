@@ -12,5 +12,6 @@
 # (which will still have a system python installed).
 language: java
 sudo: required
+before_script: ln -s bcftools/view/test-data/ . 
 script:
  - wget -O- https://raw.github.com/galaxyproject/planemo/master/scripts/travis_test.sh | /bin/bash -x
