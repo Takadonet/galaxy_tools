@@ -12,6 +12,6 @@
 # (which will still have a system python installed).
 language: java
 sudo: required
-before_script: ln -s bcftools/view/test-data/ . 
+before_script: ln -s bcftools/view/test-data/ . && wget https://depot.galaxyproject.org/package/linux/x86_64/bcftools/bcftools-1.2-Linux-x86_64.tgz && tar -zxvf bcftools-1.2-Linux-x86_64.tgz && export PATH=`pwd`/bin:$PATH 
 script:
  - wget -O- https://raw.github.com/galaxyproject/planemo/master/scripts/travis_test.sh | /bin/bash -x
