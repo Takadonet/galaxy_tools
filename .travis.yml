@@ -11,6 +11,6 @@
 # to run the simplest way to get that installed is to just start with "java".
 # (which will still have a system python installed).
 language: java
-
+sudo: required
 script:
  - wget -O- https://raw.github.com/galaxyproject/planemo/master/scripts/travis_test.sh | /bin/bash -x
