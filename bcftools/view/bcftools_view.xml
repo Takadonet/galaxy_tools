@@ -37,6 +37,32 @@
         #if str($region):
         $region
         #end if
+
+          
+        #if str($trim_alt_alleles) == "True" then "-a" else "" #
+        
+        #if str($sites_no_genotype) == "True":
+        "-u"
+        elif str($sites_no_genotype) == "False":
+        "-U" 
+        #end if
+        
+        #if $min_nref:
+        --min-ac "$min_nref"
+        #end if
+
+        #if $max_nref:
+        --max-ac "$max_nref"
+        #end if
+
+        #if $samples:
+        -s "$samples"
+        #end if
+
+       #if $include_types:
+       #set $include_types = str($getVar('include_types', None))
+       -v "$include_types"
+       #end if
         ]]>
     </command>
     <inputs>
@@ -53,6 +79,26 @@
             <option value="no_header">No Header</option>
         </param>
         <param name="region" size="30" type="text" value="" label="Region to view" help="Accept following format: CHROM:START-END"/>
+        <param name="trim_alt_alleles" type="select" label="Trim alternate alleles" help="trim alternate alleles not seen in the subset" optional="true">
+          <option value="False">False</option>
+          <option value="True">True</option>
+        </param>
+        <param name="sites_no_genotype" type="select" label="Sites without a called genotype" help="select/exclude sites without a called genotype" optional="true">
+          <option value="off">Turn off completely</option>
+          <option value="False">False</option>
+          <option value="True">True</option>
+        </param>
+        <param name="min_nref" type="integer" label="Minimum count for non reference" help="minimum count for non-reference (nref), 1st alternate (alt1), least frequent (minor), most frequent (major) or sum of all but most frequent (nonmajor) alleles [nref]" optional="true" value="" />
+        <param name="max_nref" type="integer" label="Maximum count for non reference" help="Maximum count for non-reference (nref), 1st alternate (alt1), least frequent (minor), most frequent (major) or sum of all but most frequent (nonmajor) alleles [nref]" optional="true" value="" />
+
+        <param name="samples" type="text" label="Samples to include or exclude" help="file of samples to include (or exclude with &#34;^&#34; prefix)" optional="true" value="" />
+        <param name="include_types" type="select" label="Select variant types" help="select comma-separated list of variant types: snps,indels,mnps,other" optional="true" multiple="true">
+          <option value="snps" >snps</option>
+          <option value="indels">indels</option>
+          <option value="mnps">mnps</option>
+          <option value="other">other</option>
+        </param>
+        
     </inputs>
     <outputs>
         <data format="bcf" name="output">
@@ -129,6 +175,18 @@
             <param name="region" value="chr20" />
             <output file="large_chrom.20.1.2147483647.out" ftype="vcf"  name="output" />
         </test>
+        <test>
+            <param name="input" value="view.vcf.gz" />
+            <param name="trim_alt_alleles" value="True" />
+            <param name="sites_no_genotype" value="False"/>
+            <param name="samples" value="NA00002"/>
+            <param name="min_nref" value="1"/>
+            <param name="max_nref" value="1"/>
+            <param name="include_types" value="snps"/>
+            <param name="output_format" value="vcf_uncompressed"/>
+            <output file="view.1.out" ftype="vcf"  name="output" lines_diff="2"/>
+        </test>
+
         
     </tests>
     <help>
