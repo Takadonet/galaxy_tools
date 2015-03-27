@@ -1,12 +1,19 @@
 <tool id="bcftools_view" name="bcftools_view" version="0.1.0">
     <requirements>
-        <requirement type="package" version="1.0">bcftools_1_2</requirement>
+        <requirement type="package" version="1.0">bcftools</requirement>
     </requirements>
     <stdio>
         <exit_code range="1:" />
     </stdio>
     <command>
-	bcftools view
+      <![CDATA[
+           #if str($input.ext) == 'vcf':
+           cp $input input.vcf && bgzip input.vcf &&
+           #set $input="input.vcf.gz"
+           #end if
+
+           bcftools index $input && 
+           bcftools view
 
         #if str($output_format) == 'vcf_uncompressed':
         -O v
@@ -26,7 +33,11 @@
         
  	-o $output
 	$input
-
+        
+        #if str($region):
+        $region
+        #end if
+        ]]>
     </command>
     <inputs>
         <param format="bcf,vcf" label="VCF/BCF file(s) to merged" name="input" optional="false" type="data" />
@@ -40,7 +51,8 @@
             <option selected="true" value="all">Print All</option>
             <option value="header_only">Header only</option>
             <option value="no_header">No Header</option>
-        </param>        
+        </param>
+        <param name="region" size="30" type="text" value="" label="Region to view" help="Accept following format: CHROM:START-END"/>
     </inputs>
     <outputs>
         <data format="bcf" name="output">
@@ -58,16 +70,66 @@
             <output file="result1.vcf" ftype="vcf" lines_diff="2" name="output" />
         </test>
         <test>
+            <param name="input" value="result1.vcf" />
+            <param name="output_format" value="bcf_compressed"/>
+            <output file="result3.bcf.gz" ftype="bcf_bgzip"  name="output" compare="sim_size" delta="100"/>
+        </test>                
+        <test>
             <param name="input" value="input1.bcf.gz" />
             <param name="header_option" value="no_header" />
             <param name="output_format" value="vcf_compressed"/>
             <output file="result2.vcf.gz" ftype="vcf_bgzip" lines_diff="2" name="output" />          
         </test>
         <test>
-            <param name="input" value="result1.vcf" />
-            <param name="output_format" value="bcf_compressed"/>
-            <output file="result3.bcf.gz" ftype="bcf_bgzip"  name="output" compare="sim_size" delta="100"/>
-        </test>        
+            <param name="input" value="merge.a.bcf" />
+            <param name="header_option" value="no_header" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <param name="region" value="2:3199812-3199812" />
+            <output file="tabix.2.3199812.out" ftype="vcf" name="output" />
+        </test>
+        <test>
+            <param name="input" value="merge.a.bcf" />
+            <param name="header_option" value="no_header" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <param name="region" value="1:3000151-3000151" />
+            <output file="tabix.1.3000151.out" ftype="vcf"  name="output" />
+        </test>
+        <test>
+            <param name="input" value="large_chrom_tbi_limit.bcf" />
+            <param name="header_option" value="no_header" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <param name="region" value="chr11:1-536870912" />
+            <output file="large_chrom_tbi_limit.20.1.536870912.out" ftype="vcf"  name="output" />
+        </test>
+        <test>
+            <param name="input" value="large_chrom_csi_limit.vcf.gz" />
+            <param name="header_option" value="no_header" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <param name="region" value="chr20:1-2147483647" />
+            <output file="large_chrom_csi_limit.20.1.2147483647.out" ftype="vcf"  name="output" />
+        </test>
+        <test>
+            <param name="input" value="large_chrom_tbi_limit.vcf.gz" />
+            <param name="header_option" value="no_header" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <param name="region" value="chr11:1-536870912" />
+            <output file="large_chrom_tbi_limit.20.1.536870912.out" ftype="vcf"  name="output" />
+        </test>
+        <test>
+            <param name="input" value="large_chrom_csi_limit.bcf" />
+            <param name="header_option" value="no_header" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <param name="region" value="chr20:1-2147483647" />
+            <output file="large_chrom_csi_limit.20.1.2147483647.out" ftype="vcf"  name="output" />
+        </test>
+        <test>
+            <param name="input" value="large_chrom_csi_limit.bcf" />
+            <param name="header_option" value="no_header" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <param name="region" value="chr20" />
+            <output file="large_chrom.20.1.2147483647.out" ftype="vcf"  name="output" />
+        </test>
+        
     </tests>
     <help>
 About:   VCF/BCF conversion, view, subset and filter VCF/BCF files.
