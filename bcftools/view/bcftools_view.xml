@@ -35,7 +35,7 @@
 	$input
         
         #if str($region):
-        $region
+         -r $region
         #end if
 
           
@@ -60,9 +60,37 @@
         #end if
 
        #if $include_types:
-       #set $include_types = str($getVar('include_types', None))
        -v "$include_types"
        #end if
+
+        #if $filters:
+        --apply-filters "$filters"
+        #end if
+
+
+       #if $select_sites:
+       #set $list = str($select_sites).split(',')
+       #for $i, $s in enumerate( $list )
+           #if str($s) == "known":
+          -k
+          #elif str($s) == "novel":
+          -n 
+          #end if
+        #end for
+       #end if
+
+       #if $private:
+       #set $list = str($private).split(',')
+       #for $i, $s in enumerate( $list )
+           #if str($s) == "private":
+          -x
+          #elif str($s) == "exclude":
+          -X 
+          #end if
+        #end for
+       #end if
+
+
         ]]>
     </command>
     <inputs>
@@ -99,6 +127,16 @@
           <option value="other">other</option>
         </param>
         
+        <param name="filters" type="text" label="FILTER strings" help="Listed FILTER strings (e.g. &#34;PASS, . &#34;)" optional="true" value="" />
+        
+        <param name="select_sites" type="select" label="Select known/novel sites" help="select known/novel sites only (ID is not/is '.')" optional="true" multiple="true">
+          <option value="known" >Known</option>
+          <option value="novel">novel</option>
+        </param>
+        <param name="private" type="select" label="select/exclude sites where the non-reference alleles are exclusive (private) to the subset samples" optional="true" multiple="true">
+          <option value="private" >private</option>
+          <option value="exclude">Exclude private</option>
+        </param>            
     </inputs>
     <outputs>
         <data format="bcf" name="output">
@@ -187,6 +225,16 @@
             <output file="view.1.out" ftype="vcf"  name="output" lines_diff="2"/>
         </test>
 
+        <test>
+            <param name="input" value="view.vcf.gz" />
+            <param name="filters" value="PASS"/>
+            <param name="select_sites" value="known"/>
+            <param name="private" value="exclude"/>
+            <param name="samples" value="NA00003"/>
+            <param name="region" value="20" />
+            <param name="output_format" value="vcf_uncompressed"/>
+            <output file="view.2.out" ftype="vcf"  name="output" lines_diff="2"/>
+        </test>
         
     </tests>
     <help>
