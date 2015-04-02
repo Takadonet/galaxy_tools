@@ -136,7 +136,7 @@
         <param name="private" type="select" label="select/exclude sites where the non-reference alleles are exclusive (private) to the subset samples" optional="true" multiple="true">
           <option value="private" >private</option>
           <option value="exclude">Exclude private</option>
-        </param>            
+        </param>
     </inputs>
     <outputs>
         <data format="bcf" name="output">
@@ -235,7 +235,13 @@
             <param name="output_format" value="vcf_uncompressed"/>
             <output file="view.2.out" ftype="vcf"  name="output" lines_diff="2"/>
         </test>
-        
+        <test>
+            <param name="input" value="view.vcf.gz" />
+            <param name="private" value="private"/>
+            <param name="samples" value="NA00003"/>
+            <param name="output_format" value="vcf_uncompressed"/>
+            <output file="view.3.out" ftype="vcf"  name="output" lines_diff="2"/>
+        </test>
     </tests>
     <help>
 About:   VCF/BCF conversion, view, subset and filter VCF/BCF files.
