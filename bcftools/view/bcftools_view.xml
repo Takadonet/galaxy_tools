@@ -1,6 +1,7 @@
 <tool id="bcftools_view" name="bcftools_view" version="0.1.0">
     <requirements>
         <requirement type="package" version="1.0">bcftools</requirement>
+        <requirement type="package" version="1.0">tabix</requirement>
     </requirements>
     <stdio>
         <exit_code range="1:" />

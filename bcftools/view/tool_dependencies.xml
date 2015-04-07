@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <tool_dependency>
     <package name="bcftools" version="1.0">
-        <repository changeset_revision="7f79bb9e6b5d" name="package_bcftools_1_2" owner="takadonet" toolshed="https://testtoolshed.g2.bx.psu.edu/" />
+        <repository  name="package_bcftools_1_2" owner="iuc" />
     </package>
+    <package name="tabix" version="1.0">
+        <repository  name="package_tabix_0_2_6" owner="iuc" />
+    </package>    
 </tool_dependency>
