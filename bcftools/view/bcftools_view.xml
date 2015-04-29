@@ -1,7 +1,7 @@
 <tool id="bcftools_view" name="bcftools_view" version="0.1.0">
     <requirements>
-        <requirement type="package" version="1.0">bcftools</requirement>
-        <requirement type="package" version="1.0">tabix</requirement>
+        <requirement type="package" version="1.2">bcftools</requirement>
+        <requirement type="package" version="0.2.6">tabix</requirement>
     </requirements>
     <stdio>
         <exit_code range="1:" />
@@ -9,11 +9,29 @@
     <command>
       
            #if str($input.ext) == 'vcf':
+
            cp $input input.vcf &amp;&amp; bgzip input.vcf &amp;&amp;
            #set $input="input.vcf.gz"
+           
+           #elif str($input.ext) == 'vcf_bgzip':
+           
+           ln -s  $input input.vcf.gz  &amp;&amp;
+           #set $input="input.vcf.gz"
+           
+           #elif str($input.ext) == 'bcf':
+           
+           cp $input input.bcf &amp;&amp;
+           #set $input="input.bcf"
+           
+           #elif str($input.ext) == 'bcf_bgzip':
+           
+           ln -s  $input input.bcf.gz  &amp;&amp;
+           #set $input="input.bcf.gz"
+           
            #end if
 
            bcftools index $input &amp;&amp; 
+
            bcftools view
 
         #if str($output_format) == 'vcf_uncompressed':
@@ -95,7 +113,7 @@
         
     </command>
     <inputs>
-        <param format="bcf,vcf" label="VCF/BCF file(s) to merged" name="input" optional="false" type="data" />
+        <param format="bcf,vcf,vcf_bgzip" label="VCF/BCF file(s) to merged" name="input" optional="false" type="data" />
         <param label="Choose the output format" name="output_format" type="select">
             <option selected="true" value="vcf_uncompressed">UnCompressedVCF</option>
             <option value="vcf_compressed">Compressed VCF</option>
