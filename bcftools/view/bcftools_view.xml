@@ -1,12 +1,12 @@
 <tool id="bcftools_view" name="bcftools_view" version="0.1.0">
-    <requirements>
-        <requirement type="package" version="1.2">bcftools</requirement>
-        <requirement type="package" version="0.2.6">tabix</requirement>
-    </requirements>
-    <stdio>
-        <exit_code range="1:" />
-    </stdio>
-    <command>
+  <description>Convert VCF/BCF file formats</description>
+  <macros>
+    <import>macros.xml</import>
+  </macros>
+  <expand macro="requirements" />
+  <expand macro="stdio" />
+  <expand macro="version_command" />
+  <command>
       
            #if str($input.ext) == 'vcf':
 
@@ -34,15 +34,8 @@
 
            bcftools view
 
-        #if str($output_format) == 'vcf_uncompressed':
-        -O v
-        #elif str($output_format) =='vcf_compressed':
-        -O z
-        #elif str($output_format) =='bcf_uncompressed':
-        -O u
-        #elif str($output_format) =='bcf_compressed':
-        -O b        
-        #end if
+           -O ${output_format}
+                       
 
         #if str($header_option) == 'header_only':
          --header-only
@@ -113,13 +106,8 @@
         
     </command>
     <inputs>
-        <param format="bcf,bcf_bgzip,vcf,vcf_bgzip" label="VCF/BCF file(s) to merged" name="input" optional="false" type="data" />
-        <param label="Choose the output format" name="output_format" type="select">
-            <option selected="true" value="vcf_uncompressed">UnCompressedVCF</option>
-            <option value="vcf_compressed">Compressed VCF</option>
-            <option value="bcf_uncompressed">UnCompressed BCF</option>
-            <option value="bcf_compressed">Compressed BCF</option>
-        </param>
+      <expand macro="vcf_input" />
+      <expand macro="output_format_selector" />
         <param label="Choose the output everything, only header or no header" name="header_option" type="select">
             <option selected="true" value="all">Print All</option>
             <option value="header_only">Header only</option>
@@ -155,77 +143,71 @@
         </param>
     </inputs>
     <outputs>
-        <data format="bcf" name="output">
-            <change_format>
-                <when format="vcf" input="output_format" value="vcf_uncompressed" />
-                <when format="vcf_bgzip" input="output_format" value="vcf_compressed" />
-                <when format="bcf_bgzip" input="output_format" value="bcf_compressed" />
-            </change_format>
-        </data>
+      <expand macro="output_dataset" />
     </outputs>
     <tests>
         <test>
             <param name="input" value="input1.bcf.gz" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <output file="result1.vcf" ftype="vcf" lines_diff="2" name="output" />
         </test>
         <test>
             <param name="input" value="result1.vcf" />
-            <param name="output_format" value="bcf_compressed" />
+            <param name="output_format" value="b" />
             <output compare="sim_size" delta="100" file="result3.bcf.gz" ftype="bcf_bgzip" name="output" />
         </test>
         <test>
             <param name="input" value="input1.bcf.gz" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_compressed" />
+            <param name="output_format" value="z" />
             <output file="result2.vcf.gz" ftype="vcf_bgzip" lines_diff="2" name="output" />
         </test>
         <test>
             <param name="input" value="merge.a.bcf" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <param name="region" value="2:3199812-3199812" />
             <output file="tabix.2.3199812.out" ftype="vcf" name="output" />
         </test>
         <test>
             <param name="input" value="merge.a.bcf" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <param name="region" value="1:3000151-3000151" />
             <output file="tabix.1.3000151.out" ftype="vcf" name="output" />
         </test>
         <test>
             <param name="input" value="large_chrom_tbi_limit.bcf" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <param name="region" value="chr11:1-536870912" />
             <output file="large_chrom_tbi_limit.20.1.536870912.out" ftype="vcf" name="output" />
         </test>
         <test>
             <param name="input" value="large_chrom_csi_limit.vcf.gz" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <param name="region" value="chr20:1-2147483647" />
             <output file="large_chrom_csi_limit.20.1.2147483647.out" ftype="vcf" name="output" />
         </test>
         <test>
             <param name="input" value="large_chrom_tbi_limit.vcf.gz" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <param name="region" value="chr11:1-536870912" />
             <output file="large_chrom_tbi_limit.20.1.536870912.out" ftype="vcf" name="output" />
         </test>
         <test>
             <param name="input" value="large_chrom_csi_limit.bcf" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <param name="region" value="chr20:1-2147483647" />
             <output file="large_chrom_csi_limit.20.1.2147483647.out" ftype="vcf" name="output" />
         </test>
         <test>
             <param name="input" value="large_chrom_csi_limit.bcf" />
             <param name="header_option" value="no_header" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <param name="region" value="chr20" />
             <output file="large_chrom.20.1.2147483647.out" ftype="vcf" name="output" />
         </test>
@@ -237,7 +219,7 @@
             <param name="min_nref" value="1" />
             <param name="max_nref" value="1" />
             <param name="include_types" value="snps" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <output file="view.1.out" ftype="vcf" lines_diff="2" name="output" />
         </test>
         <test>
@@ -247,14 +229,14 @@
             <param name="private" value="exclude" />
             <param name="samples" value="NA00003" />
             <param name="region" value="20" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <output file="view.2.out" ftype="vcf" lines_diff="2" name="output" />
         </test>
         <test>
             <param name="input" value="view.vcf.gz" />
             <param name="private" value="private" />
             <param name="samples" value="NA00003" />
-            <param name="output_format" value="vcf_uncompressed" />
+            <param name="output_format" value="v" />
             <output file="view.3.out" ftype="vcf" lines_diff="2" name="output" />
         </test>
     </tests>
@@ -325,9 +307,5 @@ Usage:   bcftools view [options] &lt;in.vcf.gz&gt;; [region1 [...]]
     -x/X, --private/--exclude-private           select/exclude sites where the non-reference alleles are exclusive (private) to the subset samples
         
     </help>
-    <citations>
-        <citation type="doi">10.1093/bioinformatics/btp352</citation>
-        <citation type="doi">10.1093/bioinformatics/btr509</citation>
-        <citation type="doi">10.1093/bioinformatics/btr076</citation>
-    </citations>
+    <expand macro="citations" />
 </tool>
